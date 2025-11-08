@@ -1,0 +1,24 @@
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import { clerkMiddleware } from '@clerk/express'
+import { clerkClient, requireAuth, getAuth } from '@clerk/express'
+import aiRouter from './routes/aiRoutes.js';
+
+const app = express()
+
+
+app.use(cors())
+app.use(express.json())
+app.use(clerkMiddleware())
+
+
+app.get('/',(req,res)=> res.send('server ... is Live !'))
+
+//  app.use(requireAuth())
+
+app.use('/api/ai', aiRouter);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT,()=>{
+    console.log('server is running on :', PORT)
+})
