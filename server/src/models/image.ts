@@ -17,11 +17,11 @@ const imageSchema = new mongoose.Schema({
     transformation: {
         unique: true,
         type: String,
-        require: true
+        required: true
     },
     publicId: {
         type: String,
-        require: true
+        required: true
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -30,7 +30,7 @@ const imageSchema = new mongoose.Schema({
     },
     secureUrl: {
         type: String,
-        require: true
+        required: true
     },
     width: {
         type: Number,
@@ -58,6 +58,6 @@ const imageSchema = new mongoose.Schema({
         type: Date
     },
 
-})
+},{ timestamps: true });
 export default mongoose.models.Image ||
     mongoose.model("Image", imageSchema);

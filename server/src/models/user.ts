@@ -6,16 +6,16 @@ const userSchema = new mongoose.Schema({
 
     username: {
         type: String,
-        require: true
+        required: true
     },
     email: {
         unique: true,
         type: String,
-        require: true
+        required: true
     },
     password: {
         type: String,
-        require: true
+        required: true
     },
     imageArrsy: [
         {
@@ -24,6 +24,6 @@ const userSchema = new mongoose.Schema({
         }
     ]
 
-})
+},{ timestamps: true });
 export default mongoose.models.User ||
     mongoose.model("User", userSchema)
