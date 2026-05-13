@@ -2,6 +2,7 @@ import connectDB from "@/lib/dbConnect";
 import user from "@/models/user";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
+import { withAuth } from "../../../middleware/auth";
 
 // get the route of user and related
 
@@ -10,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(
     request: NextRequest
 ) {
+    const auth = withAuth(request);
     try {
         const body = await request.json();
 
@@ -71,7 +73,7 @@ export async function GET(request: NextRequest) {
     try {
       await  connectDB();
       if(id){
-        const dbUser  =  await user.findById("id");
+        const dbUser  =  await user.findById(id);
         if(!dbUser){
         return NextResponse.json(
             {
@@ -85,7 +87,7 @@ export async function GET(request: NextRequest) {
             {
                 success: true,
                 dbUser       
-            }, { status: 500 }
+            }, { status: 200 }
         )  
     }
     const allUser = await user.find();
@@ -93,7 +95,7 @@ export async function GET(request: NextRequest) {
             {
                 success: true,
                 allUser       
-            }, { status: 500 }
+            }, { status: 200 }
         )  
        
     } catch (error) {

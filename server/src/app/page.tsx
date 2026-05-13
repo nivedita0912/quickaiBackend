@@ -1,62 +1,96 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
-export default function HealthStatus() {
-  const [health, setHealth] = useState<any>(null);
-  const [error, setError] = useState("");
+interface HealthData {
+  success: boolean
+  message: string
+  db: {
+    status: string
+    isConnected: boolean
+    host: string | null
+    dbName: string | null
+  }
+}
+
+export default function Home() {
+  const [status, setStatus] = useState<"checking" | "online" | "offline">("checking")
+  const [data, setData] = useState<HealthData | null>(null)
 
   useEffect(() => {
-    async function checkHealth() {
-      try {
-        const res = await fetch("/api/health");
-        const data = await res.json();
-
-        setHealth(data);
-      } catch (err) {
-        setError("Server connection failed");
-      }
-    }
-
-    checkHealth();
-  }, []);
-
-  const isHealthy =
-    health?.server === "running" &&
-    health?.database === "connected";
+    fetch("/api/health")
+      .then(res => res.json())
+      .then((json: HealthData) => {
+        setData(json)
+        setStatus(json.success && json.db.isConnected ? "online" : "offline")
+      })
+      .catch(() => setStatus("offline"))
+  }, [])
 
   return (
-    <div className="p-4">
-      {isHealthy ? (
-        <div className="border border-green-500 bg-green-100 text-green-700 rounded-xl p-4 flex items-center gap-2">
-          <span className="text-2xl">✅</span>
+  <div className="min-h-screen flex items-center justify-center bg-black">
+    
+    <div className="bg-gray-800 text-white rounded-2xl shadow-lg p-8 w-full max-w-md flex flex-col items-center justify-center space-y-4">
 
-          <div>
-            <h2 className="font-bold">
-              Server is Healthy
-            </h2>
+      {/* Server Status */}
+      {status === "checking" && (
+        <p className="text-gray-400 text-lg">
+          Checking server...
+        </p>
+      )}
 
-            <p>All systems are working correctly.</p>
-          </div>
-        </div>
-      ) : (
-        <div className="border border-red-500 bg-red-100 text-red-700 rounded-xl p-4 flex items-center gap-2">
-          <span className="text-2xl">❌</span>
+      {status === "online" && (
+        <p className="text-green-500 font-semibold text-xl">
+          ✅ Server is running
+        </p>
+      )}
 
-          <div>
-            <h2 className="font-bold">
-              Server Problem Detected
-            </h2>
+      {status === "offline" && (
+        <p className="text-red-500 font-semibold text-xl">
+          ❌ Server is offline
+        </p>
+      )}
 
-            <p>
-              {error ||
-                `Database: ${
-                  health?.database || "Disconnected"
-                }`}
-            </p>
-          </div>
+      {/* DB Status */}
+      {data && (
+        <div className="w-full mt-2 border border-gray-700 rounded-xl p-4 text-sm space-y-2 bg-gray-900">
+
+          <p className="text-center">
+            <span className="font-semibold">
+              DB Status:
+            </span>{" "}
+            
+            <span
+              className={
+                data.db.isConnected
+                  ? "text-green-500"
+                  : "text-red-500"
+              }
+            >
+              {data.db.status}
+            </span>
+          </p>
+
+          {data.db.isConnected && (
+            <>
+              <p>
+                <span className="font-semibold">
+                  Host:
+                </span>{" "}
+                {data.db.host}
+              </p>
+
+              <p>
+                <span className="font-semibold">
+                  Database:
+                </span>{" "}
+                {data.db.dbName}
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>
-  );
+  </div>
+)
 }
